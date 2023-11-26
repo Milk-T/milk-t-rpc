@@ -2,6 +2,11 @@
 
 ## Architecture
 
+![Architecture](./docs/architecture.png)
+
+<details>
+<summary>UML</summary>
+
 ```plantuml
 @startuml
 skinparam componentStyle rectangle
@@ -33,3 +38,5 @@ component "Web Engine" as engine {
 [RpcClient] -down-> [RpcServer]: "RPC"
 @enduml
 ```
+
+</details>

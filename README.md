@@ -22,6 +22,7 @@ component "Web Server" as web {
     }
 }
 HTTP -right-> [FastAPI]
+Websocket -right-> [FastAPI]
 
 component "Web Engine" as engine {
     [RpcServer]
@@ -33,9 +34,12 @@ component "Web Engine" as engine {
     component "AlgoRpcServer" {
         [AlgoEngine]
     }
+
+    [EventEngine] -up-> [RpcServer]: "Put Event"
 }
 
 [RpcClient] -down-> [RpcServer]: "RPC"
+[RpcServer] -up-> [RpcClient]: "Publish Event"
 @enduml
 ```
 

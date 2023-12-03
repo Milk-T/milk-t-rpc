@@ -27,8 +27,8 @@ component "Web Engine" as engine {
     [RpcServer]
     component "MainEngine" as mainengine {
         [RpcServer] -down-> [AlgoRpcServer]
-        [RpcServer] -down-> [MainEngine]
     }
+    [RpcServer] -down-> mainengine
 
     component "AlgoRpcServer" {
         [AlgoEngine]

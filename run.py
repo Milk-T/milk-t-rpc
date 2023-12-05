@@ -21,6 +21,15 @@ formatter = logging.Formatter(
 stdout_handler.setFormatter(formatter)
 logger.addHandler(stdout_handler)
 
+# Web服务运行配置
+APP_SETTING_FILENAME = "web_trader_setting.json"
+app_setting: dict = load_json(get_file_path(APP_SETTING_FILENAME))
+REQ_ADDRESS = app_setting["req_address"]  # 请求服务地址
+SUB_ADDRESS = app_setting["sub_address"]  # 订阅服务地址
+
+CTP_SETTING_FILENAME = "connect_ctp.json"
+ctp_connection_setting: dict = load_json(get_file_path(CTP_SETTING_FILENAME))
+
 
 def to_dict(o: dataclass) -> dict:
     """将对象转换为字典"""
@@ -50,23 +59,12 @@ def main():
     main_engine.add_gateway(CtpGateway)
     main_engine.add_app(AlgoTradingApp)
 
-    setting = {
-        "用户名": "60111805",
-        "密码": "123321",
-        "经纪商代码": "4300",
-        "交易服务器": "61.183.150.151:41205",
-        "行情服务器": "61.183.150.151:41213",
-        "产品名称": "rainmaker_coffee_1.0",
-        "授权编码": "5S58RS2AS24WJNQ2",
-        "产品信息": "",
-    }
-    main_engine.connect(setting, "CTP")
+    main_engine.connect(ctp_connection_setting, "CTP")
 
     web_engine = WebEngine(main_engine, event_engine)
-    req_address = "tcp://127.0.0.1:2014"
-    sub_address = "tcp://127.0.0.1:4102"
-    logger.info("Start server:%s", req_address)
-    web_engine.start_server(req_address, sub_address)
+
+    logger.info("Start server:%s", REQ_ADDRESS)
+    web_engine.start_server(REQ_ADDRESS, SUB_ADDRESS)
 
 
 if __name__ == "__main__":

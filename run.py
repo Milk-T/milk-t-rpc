@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-import vnpy.trader.ui  # noqa
 from vnpy_ctp import CtpGateway
 from vnpy.event import EventEngine, Event
 from vnpy.trader.engine import MainEngine

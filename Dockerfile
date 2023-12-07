@@ -13,17 +13,20 @@ RUN sed -i "s|http://deb.debian.org/debian|http://mirror.sjtu.edu.cn/debian|g" /
     wget \
     git \
     supervisor \
+    locales \
     build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
+    && rm -rf /var/lib/apt/lists/* \
+    && wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
     && tar -xzf ta-lib-0.4.0-src.tar.gz \
     && cd ta-lib/ \
     && ./configure --prefix=/usr \
     && make \
     && make install \
     && cd .. \
-    && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+    && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz \
+    && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen \
+    && sed -i '/zh_CN.GB18030/s/^# //g' /etc/locale.gen \
+    && locale-gen
 
 RUN pip config set global.index-url https://mirror.sjtu.edu.cn/pypi/web/simple \
     && pip install vnpy vnpy_rpcservice vnpy_ctp \
@@ -34,5 +37,4 @@ RUN pip config set global.index-url https://mirror.sjtu.edu.cn/pypi/web/simple \
 VOLUME ["/root/.vntrader"]
 EXPOSE 8000
 
-# Set the default command to run when starting the container
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

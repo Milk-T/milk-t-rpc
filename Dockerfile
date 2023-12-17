@@ -29,7 +29,7 @@ RUN sed -i "s|http://deb.debian.org/debian|http://mirror.sjtu.edu.cn/debian|g" /
     && locale-gen
 
 RUN pip config set global.index-url https://mirror.sjtu.edu.cn/pypi/web/simple \
-    && pip install vnpy vnpy_rpcservice vnpy_ctp \
+    && pip install vnpy vnpy_rpcservice vnpy_ctp vnpy_rest vnpy_crypto vnpy_websocket vnpy_binance \
     && pip install git+https://github.com/Milk-T/vnpy_webtrader.git \
     && pip install git+https://github.com/Milk-T/vnpy_algotrading.git \
     && mkdir -p /app/logs

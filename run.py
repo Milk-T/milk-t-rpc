@@ -1,10 +1,19 @@
+import os
 import sys
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+import vnpy_crypto
+vnpy_crypto.init()
+
 from vnpy_ctp import CtpGateway
+from vnpy_binance import (
+    BinanceSpotGateway,
+    BinanceUsdtGateway,
+    BinanceInverseGateway
+)
 from vnpy.event import EventEngine, Event
 from vnpy.trader.engine import MainEngine
 from vnpy_webtrader import WebEngine
@@ -27,9 +36,6 @@ app_setting: dict = load_json(get_file_path(APP_SETTING_FILENAME))
 REQ_ADDRESS = app_setting["req_address"]  # 请求服务地址
 SUB_ADDRESS = app_setting["sub_address"]  # 订阅服务地址
 
-CTP_SETTING_FILENAME = "connect_ctp.json"
-ctp_connection_setting: dict = load_json(get_file_path(CTP_SETTING_FILENAME))
-
 
 def to_dict(o: dataclass) -> dict:
     """将对象转换为字典"""
@@ -49,6 +55,12 @@ def process_log_event(event: Event):
     logger.info("event=%s", to_dict(event))
 
 
+def connect_gateway(main_engine,gateway_class, setting_filename):
+    setting = load_json(get_file_path(setting_filename))
+    main_engine.add_gateway(gateway_class)
+    main_engine.connect(setting, gateway_class.default_name)
+
+
 def main():
     """Start VN Trader"""
     event_engine = EventEngine()
@@ -56,14 +68,20 @@ def main():
 
     main_engine = MainEngine(event_engine)
 
-    main_engine.add_gateway(CtpGateway)
+    if os.path.exists(get_file_path("connect_ctp.json")):
+        connect_gateway(main_engine, CtpGateway, "connect_ctp.json")
+        logger.info("connect ctp")
+
+    if os.path.exists(get_file_path("connect_binance.json")):
+        connect_gateway(main_engine, BinanceSpotGateway, "connect_binance.json")
+        connect_gateway(main_engine, BinanceUsdtGateway, "connect_binance.json")
+        connect_gateway(main_engine, BinanceInverseGateway, "connect_binance.json")
+        logger.info("connect binance")
+
     main_engine.add_app(AlgoTradingApp)
 
-    main_engine.connect(ctp_connection_setting, "CTP")
-
-    web_engine = WebEngine(main_engine, event_engine)
-
     logger.info("Start server:%s", REQ_ADDRESS)
+    web_engine = WebEngine(main_engine, event_engine)
     web_engine.start_server(REQ_ADDRESS, SUB_ADDRESS)
 
 
